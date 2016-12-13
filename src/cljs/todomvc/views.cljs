@@ -11,6 +11,7 @@
                 (when (seq v) (on-save v))
                 (stop))]
     (fn [props]
+      (println (pr-str {:props props}))
       [:input (merge props
                      {:type "text"
                       :value @val
@@ -25,6 +26,7 @@
 (defn todo-item []
   (let [editing (reagent/atom false)]
     (fn [{:keys [id title done]}]
+      (println {:component ::todo-item :id id :title title :done done})
       [:li {:class (str (when done "completed")
                         (when @editing "editing"))}
        [:div.view
@@ -41,7 +43,7 @@
          [todo-input
           {:class "edit"
            :title title
-           :on-save #(dispatch [:save :id %])
+           :on-save #(dispatch [:save id %])
            :on-stop #(reset! editing false)}])])))
 
 (defn task-list
@@ -49,17 +51,19 @@
   (let [visible-todos (subscribe [:visible-todos])
         all-complete? (subscribe [:all-complete?])]
     (fn []
+      (println {:visible-todos @visible-todos :all-complete? @all-complete?})
       [:section#main
        [:input#toggle-all
         {:type "checkbox"
          :checked @all-complete?
-         :on-change #(dispatch [:complete-all-toggle (not @all-complete?)])}
-        [:label
-         {:for "toggle-all"}
-         "Mark all as Complete"]
-        [:ul#todo-list
-         (for [todo @visible-todos]
-           ^{:key (:id todo)} [todo-item todo])]]])))
+         :on-change #(dispatch [:complete-all-toggle (not @all-complete?)])}]
+       [:label
+        {:for "toggle-all"}
+        "Mark all as Complete"]
+       [:ul#todo-list
+        (for [todo @visible-todos]
+          (do (println {:todo todo})
+              ^{:key (:id todo)} [todo-item todo]))]])))
 
 (defn footer-controls
   []
@@ -98,6 +102,7 @@
        [:section#todoapp
         [task-entry]
         (when (seq @todos)
+          (println {:todos @todos})
           [task-list])
         [footer-controls]]
        [:footer#info

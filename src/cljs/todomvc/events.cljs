@@ -9,7 +9,7 @@
 
 (defn check-and-throw
   [a-spec db]
-  (when-not (s/valid? a-spec db )
+  (when-not (s/valid? a-spec db)
     (throw (ex-info (str "spec check failed: " (s/explain-str a-spec db)) {}))))
 
 (def check-spec-interceptor (after (partial check-and-throw :todomvc.db/db)))
@@ -86,6 +86,6 @@
  todo-interceptors
  (fn [todos _]
    (let [new-done (not-every? :done (vals todos))]
-     (reduce #(assoc %1 [%2 :done] new-done)
+     (reduce #(assoc-in %1 [%2 :done] new-done)
              todos
              (keys todos)))))
